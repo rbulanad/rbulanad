@@ -1,50 +1,49 @@
-void	camera_dir_set(t_game *game)
-{
-	if (game->player == 'E')
-	{
-		game->data.dir_x = 0;
-		game->data.dir_y = 1;
-		game->data.plane_x = 0.66;
-		game->data.plane_y = 0;
-	}
-	if (game->player == 'W')
-	{
-		game->data.dir_x = 0;
-		game->data.dir_y = -1;
-		game->data.plane_x = -0.66;
-		game->data.plane_y = 0;
-	}
-}
+VIMRC
+:set showcmd
+:set tabstop=4
+:set shiftwidth=4
+:set smartindent
+:set mouse=a
+:set nu
+function! MultiReplace(...)
+	let pairs = len(a:000)
+	if pairs % 2 != 0
+		echo "Invalid num of args"
+		return
+	endif
+	for i in range(0, pairs - 1, 2)
+		let old = a:000[i]
+		let new = a:000[i + 1]
+		execute '%s/' . old . '/' . new . '/gc'
+	endfor
+endfunction
 
-void	camera_dir_set2(t_game *game)
-{
-	if (game->player == 'N')
-	{
-		game->data.dir_x = -1;
-		game->data.dir_y = 0;
-		game->data.plane_x = 0;
-		game->data.plane_y = 0.66;
-	}
-	if (game->player == 'S')
-	{
-		game->data.dir_x = 1;
-		game->data.dir_y = 0;
-		game->data.plane_x = 0;
-		game->data.plane_y = -0.66;
-	}
-}
+command -nargs=* SS call MultiReplace(<f-args>)
 
-void	data_init(t_game *game)
-{
-	game->data.mlx = mlx_init();
-	game->data.pos_x = game->y_player + 0.5;
-	game->data.pos_y = game->x_player + 0.5;
-	camera_dir_set(game);
-	camera_dir_set2(game);
-	game->data.up = 0;
-	game->data.down = 0;
-	game->data.left = 0;
-	game->data.right = 0;
-	game->data.l_strafe = 0;
-	game->data.r_strafe = 0;
-}
+nnoremap <silent> s ostd::cout << "" << std::endl;<ESC>14hi
+nnoremap <silent> m iint	main()<CR>{<CR>return (0);<CR>}<ESC>
+
+function! GetCNAME()
+	let g:CNAME = input('Enter a class name: ')
+	call PrintClass()
+endfunction
+
+function! PrintClass()
+	if empty(g:CNAME)
+		echom "Error: I need a name for the class"
+	else
+		execute 'normal! i#ifndef ' . toupper(g:CNAME) . "_HPP\<CR>#define " . toupper(g:CNAME) . "_HPP\<CR>\<CR>class	" . g:CNAME . "\<CR>" . "{\<CR>private:\<CR>public:\<CR>" . g:CNAME . "();\<CR>~" . g:CNAME . "();\<CR>" . g:CNAME . "(const " . g:CNAME . " &dup);\<CR>" . g:CNAME. " &operator=(const " . g:CNAME . " &dup);\<CR>};\<CR>\<CR>#endif\<ESC>"
+	endif
+endfunction
+
+nnoremap <silent> c :call GetCNAME()<CR>
+
+function! PrintClassDef(name)
+	if empty(a:name)
+		echom "Error: I need a name for the class"
+	else
+		execute 'normal! i#include "' . a:name . ".hpp\"\<CR>\<CR>" . a:name . "::" . a:name . "()\<CR>{\<CR>}\<CR>\<CR>" . a:name . "::~" . a:name . "()\<CR>{\<CR>}\<CR>\<CR>" . a:name . "::" . a:name . "(const " . a:name . " &dup)\<CR>{\<CR>*this = dup;\<CR>}\<CR>\<CR>" . a:name . " &" . a:name . "::operator=(const " . a:name . " &dup)\<CR>{\<CR>if (this != &dup) {}\<CR>return *this;\<CR>}\<CR>\<ESC>"
+	endif
+endfunction
+
+command -nargs=1 CC call PrintClassDef(<q-args>)
